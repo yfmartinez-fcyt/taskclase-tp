@@ -20,7 +20,7 @@ const taskService = {
    * @returns {Promise} Lista de tareas
    */
   getTasks: async (filters = {}) => {
-    const response = await axiosClient.get('/api/tasks', { params: filters });
+    const response = await axiosClient.get('/tasks', { params: filters });
     // La API devuelve { success: true, count: X, data: [...] }
     return response.data.data || [];
   },
@@ -30,7 +30,7 @@ const taskService = {
    * @returns {Promise} Objeto con estadísticas
    */
   getTaskStats: async () => {
-    const response = await axiosClient.get('/api/tasks/stats');
+    const response = await axiosClient.get('/tasks/stats');
     // La API devuelve { success: true, data: { ...Stats } }
     return response.data.data || null;
   },
@@ -41,7 +41,7 @@ const taskService = {
    * @returns {Promise} Datos de la tarea
    */
   getTaskById: async (id) => {
-    const response = await axiosClient.get(`/api/tasks/${id}`);
+    const response = await axiosClient.get(`/tasks/${id}`);
     // La API devuelve { success: true, data: { ...Task } }
     return response.data.data;
   },
@@ -52,7 +52,7 @@ const taskService = {
    * @returns {Promise} Tarea creada
    */
   createTask: async (taskData) => {
-    const response = await axiosClient.post('/api/tasks', taskData);
+    const response = await axiosClient.post('/tasks', taskData);
     // La API devuelve { success: true, message: '...', data: { ...Task } }
     return response.data.data;
   },
@@ -64,7 +64,7 @@ const taskService = {
    * @returns {Promise} Tarea actualizada
    */
   updateTask: async (id, taskData) => {
-    const response = await axiosClient.put(`/api/tasks/${id}`, taskData);
+    const response = await axiosClient.put(`/tasks/${id}`, taskData);
     // La API devuelve { success: true, message: '...', data: { ...Task } }
     return response.data.data;
   },
@@ -75,7 +75,7 @@ const taskService = {
    * @returns {Promise} Resultado de la operación
    */
   deleteTask: async (id) => {
-    const response = await axiosClient.delete(`/api/tasks/${id}`);
+    const response = await axiosClient.delete(`/tasks/${id}`);
     return response.data;
   }
 };

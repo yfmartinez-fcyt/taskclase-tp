@@ -6,11 +6,9 @@ const { pool } = require('../config/db');
 // ─────────────────────────────────────────────────────────────
 const getAllTasks = async (req, res) => {
   try {
-    // Extraemos parámetros de consulta opcionales de la URL
-    // Ejemplo: GET /api/tasks?status=pending&priority=high
-    const { status, priority, user_id } = req.query;
+    const { status, priority } = req.query;
+    const user_id = req.user.id; // Obtenemos el ID del usuario autenticado
     
-    // Construimos la query dinámicamente según los filtros
     let query  = `
       SELECT 
         t.id,
@@ -21,41 +19,26 @@ const getAllTasks = async (req, res) => {
         t.due_date,
         t.user_id,
         t.created_at,
-        t.updated_at,
-        u.name  AS user_name,
-        u.email AS user_email,
-        u.avatar AS user_avatar
+        t.updated_at
       FROM tasks t
-      LEFT JOIN users u ON t.user_id = u.id
-      WHERE 1=1
+      WHERE t.user_id = $1
     `;
-    // '1=1' es un truco para poder agregar 'AND' condicionalmente
     
-    const params = [];  // Array de valores para la query (evita SQL Injection)
-    let   idx    = 1;   // Contador de parámetros ($1, $2, etc.)
+    const params = [user_id]; 
+    let   idx    = 2;   
     
-    // Si pasaron ?status=..., lo agregamos como filtro
     if (status) {
       query += ` AND t.status = $${idx}`;
       params.push(status);
       idx++;
     }
     
-    // Si pasaron ?priority=..., lo agregamos como filtro
     if (priority) {
       query += ` AND t.priority = $${idx}`;
       params.push(priority);
       idx++;
     }
     
-    // Si pasaron ?user_id=..., filtramos por usuario
-    if (user_id) {
-      query += ` AND t.user_id = $${idx}`;
-      params.push(user_id);
-      idx++;
-    }
-    
-    // Ordenamos: primero las de alta prioridad, luego por fecha de creación
     query += ` ORDER BY 
       CASE t.priority 
         WHEN 'high'   THEN 1 
@@ -64,18 +47,15 @@ const getAllTasks = async (req, res) => {
       END,
       t.created_at DESC`;
     
-    // Ejecutamos la query en PostgreSQL
     const result = await pool.query(query, params);
     
-    // Respondemos con las tareas en formato JSON
     res.json({
       success: true,
-      count: result.rows.length,   // Cuántas tareas devuelve
-      data:  result.rows            // Array con todas las tareas
+      count: result.rows.length,
+      data:  result.rows
     });
     
   } catch (error) {
-    // Si algo falla, enviamos error 500
     console.error('Error en getAllTasks:', error);
     res.status(500).json({ success: false, message: 'Error al obtener las tareas' });
   }
@@ -86,22 +66,18 @@ const getAllTasks = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 const getTaskById = async (req, res) => {
   try {
-    // req.params.id es el valor dinámico de la URL (ej: /api/tasks/3 → id=3)
     const { id } = req.params;
+    const user_id = req.user.id;
     
     const result = await pool.query(
-      `SELECT t.*, u.name AS user_name, u.avatar AS user_avatar
-       FROM tasks t
-       LEFT JOIN users u ON t.user_id = u.id
-       WHERE t.id = $1`,
-      [id]   // $1 se reemplaza con el valor de 'id'
+      `SELECT * FROM tasks WHERE id = $1 AND user_id = $2`,
+      [id, user_id]
     );
     
-    // Si no encontró nada, rows estará vacío
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: `No se encontró la tarea con ID ${id}`
+        message: `No se encontró la tarea o no tienes permiso`
       });
     }
     
@@ -118,10 +94,9 @@ const getTaskById = async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 const createTask = async (req, res) => {
   try {
-    // req.body contiene los datos enviados en el body de la petición
-    const { title, description, status, priority, due_date, user_id } = req.body;
+    const { title, description, status, priority, due_date } = req.body;
+    const user_id = req.user.id;
     
-    // Validaciones básicas (verificamos que los campos requeridos estén presentes)
     if (!title || title.trim() === '') {
       return res.status(400).json({
         success: false,
@@ -129,30 +104,20 @@ const createTask = async (req, res) => {
       });
     }
     
-    if (!user_id) {
-      return res.status(400).json({
-        success: false,
-        message: 'Se debe especificar un usuario (user_id)'
-      });
-    }
-    
-    // INSERT: insertamos la nueva tarea
-    // RETURNING * → PostgreSQL nos devuelve el registro recién creado
     const result = await pool.query(
       `INSERT INTO tasks (title, description, status, priority, due_date, user_id)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
         title.trim(),
-        description || null,               // Si no hay descripción, guardamos NULL
-        status   || 'pending',             // Default: 'pending'
-        priority || 'medium',              // Default: 'medium'
+        description || null,
+        status   || 'pending',
+        priority || 'medium',
         due_date || null,
         user_id
       ]
     );
     
-    // Respondemos con el código 201 (Created) y la tarea creada
     res.status(201).json({
       success: true,
       message: 'Tarea creada exitosamente',
@@ -171,9 +136,9 @@ const createTask = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status, priority, due_date, user_id } = req.body;
+    const { title, description, status, priority, due_date } = req.body;
+    const user_id = req.user.id;
     
-    // Validamos que el título no sea una cadena vacía si se envía
     if (title !== undefined && title.trim() === '') {
       return res.status(400).json({
         success: false,
@@ -181,17 +146,15 @@ const updateTask = async (req, res) => {
       });
     }
     
-    // Verificamos que la tarea existe antes de actualizar
-    const taskExists = await pool.query('SELECT id FROM tasks WHERE id = $1', [id]);
+    // Verificamos que la tarea existe y pertenece al usuario
+    const taskExists = await pool.query('SELECT id FROM tasks WHERE id = $1 AND user_id = $2', [id, user_id]);
     if (taskExists.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: `No se encontró la tarea con ID ${id}`
+        message: `No se encontró la tarea o no tienes permiso`
       });
     }
     
-    // Actualizamos solo los campos enviados (COALESCE mantiene el valor actual
-    // si el nuevo valor es NULL — así podemos hacer actualizaciones parciales)
     const result = await pool.query(
       `UPDATE tasks SET
         title       = COALESCE($1, title),
@@ -199,11 +162,10 @@ const updateTask = async (req, res) => {
         status      = COALESCE($3, status),
         priority    = COALESCE($4, priority),
         due_date    = COALESCE($5, due_date),
-        user_id     = COALESCE($6, user_id),
         updated_at  = CURRENT_TIMESTAMP
-       WHERE id = $7
+       WHERE id = $6 AND user_id = $7
        RETURNING *`,
-      [title, description, status, priority, due_date, user_id, id]
+      [title, description, status, priority, due_date, id, user_id]
     );
     
     res.json({
@@ -224,17 +186,17 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
+    const user_id = req.user.id;
     
-    // DELETE y RETURNING para confirmar qué se eliminó
     const result = await pool.query(
-      'DELETE FROM tasks WHERE id = $1 RETURNING id, title',
-      [id]
+      'DELETE FROM tasks WHERE id = $1 AND user_id = $2 RETURNING id, title',
+      [id, user_id]
     );
     
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: `No se encontró la tarea con ID ${id}`
+        message: `No se encontró la tarea o no tienes permiso`
       });
     }
     
@@ -250,11 +212,15 @@ const deleteTask = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// GET /api/tasks/stats — Estadísticas generales
+// GET /api/tasks/stats — Estadísticas generales por usuario
 // ─────────────────────────────────────────────────────────────
+/**
+ * Calcula el resumen de tareas agrupadas por estado para el dashboard.
+ * Utiliza agregación directamente en SQL para mayor eficiencia.
+ */
 const getStats = async (req, res) => {
   try {
-    // Consulta que agrupa y cuenta por status
+    const user_id = req.user.id;
     const result = await pool.query(`
       SELECT
         COUNT(*) FILTER (WHERE status = 'pending')     AS pending,
@@ -262,9 +228,20 @@ const getStats = async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'completed')   AS completed,
         COUNT(*)                                        AS total
       FROM tasks
-    `);
+      WHERE user_id = $1
+    `, [user_id]);
     
-    res.json({ success: true, data: result.rows[0] });
+    res.json({ 
+      success: true, 
+      data: {
+        total: parseInt(result.rows[0].total) || 0,
+        by_status: {
+          pending: parseInt(result.rows[0].pending) || 0,
+          in_progress: parseInt(result.rows[0].in_progress) || 0,
+          completed: parseInt(result.rows[0].completed) || 0
+        }
+      } 
+    });
     
   } catch (error) {
     console.error('Error en getStats:', error);

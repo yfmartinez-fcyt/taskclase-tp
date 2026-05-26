@@ -25,7 +25,7 @@ export const useTasks = () => {
     try {
       // Limpiamos filtros vacíos antes de enviar
       const activeFilters = Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v !== '')
+        Object.entries(filters).filter(([, v]) => v !== '')
       );
       const data = await taskService.getTasks(activeFilters);
       setTasks(data);
@@ -52,6 +52,7 @@ export const useTasks = () => {
    * Efecto para cargar datos iniciales y reaccionar a cambios en filtros.
    */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTasks();
     fetchStats();
   }, [fetchTasks, fetchStats]);

@@ -1,4 +1,3 @@
-import React from 'react';
 import TaskCard from './TaskCard';
 import Loading from '../common/Loading';
 

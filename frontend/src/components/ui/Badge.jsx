@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Etiqueta pequeña (badge) para mostrar estados o prioridades con colores dinámicos.

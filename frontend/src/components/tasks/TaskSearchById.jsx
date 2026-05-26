@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import TaskCard from './TaskCard';
@@ -12,7 +12,7 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
   /**
    * Ejecuta la búsqueda de la tarea en la API.
    */
-  const executeSearch = async (id) => {
+  const executeSearch = useCallback(async (id) => {
     if (!id) return;
     setIsSearching(true);
     setSearchError(null);
@@ -25,13 +25,13 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
         setFoundTask(null);
         setSearchError('No se encontró ninguna tarea con ese ID.');
       }
-    } catch (err) {
+    } catch {
       setFoundTask(null);
       setSearchError('Error al buscar la tarea.');
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [onSearch, onSearchedIdChange]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -47,10 +47,11 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
       // Extraemos el ID numérico del trigger (que viene como ID_timestamp)
       const idToRefresh = refreshTrigger.toString().split('_')[0];
       if (idToRefresh === foundTask.id.toString()) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         executeSearch(idToRefresh);
       }
     }
-  }, [refreshTrigger]);
+  }, [refreshTrigger, foundTask, executeSearch]);
 
   return (
     <div className="mb-8">
@@ -70,12 +71,12 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
       </form>
 
       {searchError && (
-        <p className="text-xs text-fuchsia-500 font-bold uppercase mb-4">{searchError}</p>
+        <p className="text-xs text-[var(--accent-secondary)] font-bold uppercase mb-4">{searchError}</p>
       )}
 
       {foundTask && (
-        <div className="border-2 border-fuchsia-500/30 rounded-lg p-1 bg-fuchsia-500/5">
-          <div className="text-[10px] font-bold text-fuchsia-500 uppercase px-3 py-1">
+        <div className="border-2 border-[var(--accent-secondary)]/30 rounded-lg p-1 bg-[var(--accent-secondary)]/5">
+          <div className="text-[10px] font-bold text-[var(--accent-secondary)] uppercase px-3 py-1">
             Resultado de búsqueda:
           </div>
           <TaskCard 

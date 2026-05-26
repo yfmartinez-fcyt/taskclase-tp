@@ -1,4 +1,3 @@
-import React from 'react';
 
 const ErrorMessage = ({ message }) => {
   return (
@@ -8,7 +7,7 @@ const ErrorMessage = ({ message }) => {
       </div>
       <div>
         <p className="text-xs font-bold text-red-500 uppercase tracking-wider mb-1">Error de Sistema</p>
-        <p className="text-sm text-red-200">{message}</p>
+        <p className="text-sm text-red-600 dark:text-red-200">{message}</p>
       </div>
     </div>
   );

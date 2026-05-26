@@ -5,52 +5,73 @@ import axios from 'axios';
  * Nos permite realizar peticiones a servicios REST de forma sencilla.
  */
 const axiosClient = axios.create({
-  // baseURL: URL base que se antepondrá a cada petición.
-  // Importante: En Vite usamos import.meta.env para acceder a variables de entorno.
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
-  
-  // headers: Cabeceras comunes para todas las peticiones.
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  
-  // timeout: Tiempo máximo de espera para una respuesta (en milisegundos).
   timeout: 10000,
+  withCredentials: true // Importante para enviar cookies (Refresh Token)
 });
 
-/**
- * Los Interceptores nos permiten ejecutar código o modificar la petición/respuesta
- * antes de que sea procesada por el .then() o .catch().
- */
-axiosClient.interceptors.response.use(
-  (response) => {
-    // Si la respuesta es exitosa (2xx), la devolvemos tal cual.
-    return response;
+// Interceptor de peticiones: Adjuntar el token si existe
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   },
-  (error) => {
-    /**
-     * Manejo global de errores.
-     * Axios entrega el error en un objeto que contiene 'response' si el servidor respondió,
-     * o 'request' si la petición se hizo pero no hubo respuesta.
-     */
+  (error) => Promise.reject(error)
+);
+
+// Interceptor de respuestas: Manejar renovación de token
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Si recibimos un 401 y no hemos reintentado todavía
+    // Y NO es una petición de login (para evitar bucles o refrescos innecesarios en login)
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/login')) {
+      originalRequest._retry = true;
+
+      try {
+        // Intentar obtener un nuevo access token usando el refresh token (cookie)
+        // Usamos una URL limpia para evitar problemas con barras diagonales dobles
+        const baseURL = axiosClient.defaults.baseURL.endsWith('/') 
+          ? axiosClient.defaults.baseURL.slice(0, -1) 
+          : axiosClient.defaults.baseURL;
+          
+        const res = await axios.post(
+          `${baseURL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+
+        if (res.data.success) {
+          const newToken = res.data.accessToken;
+          sessionStorage.setItem('accessToken', newToken);
+          
+          // Actualizar el header y reintentar la petición original
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return axiosClient(originalRequest);
+        }
+      } catch (refreshError) {
+        // Si el refresh también falla, el usuario debe loguearse de nuevo (cerrar sesión)
+        sessionStorage.removeItem('accessToken');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
     const customError = {
-      message: 'Ocurrió un error inesperado',
+      message: error.response?.data?.message || 'Ocurrió un error inesperado',
       status: error.response?.status || 500,
       data: error.response?.data || null
     };
 
-    if (!error.response) {
-      customError.message = 'No se pudo conectar con el servidor. Verifica tu conexión.';
-    } else if (error.response.status === 404) {
-      customError.message = 'El recurso solicitado no existe.';
-    } else if (error.response.status === 400) {
-      customError.message = 'Datos de solicitud inválidos.';
-    } else if (error.response.status === 500) {
-      customError.message = 'Error interno del servidor.';
-    }
-
-    // Rechazamos la promesa con nuestro error personalizado.
     return Promise.reject(customError);
   }
 );

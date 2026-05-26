@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
@@ -7,7 +7,6 @@ const TaskForm = ({ onSubmit, loading }) => {
   const initialState = {
     title: '',
     description: '',
-    user_id: '',
     priority: 'medium',
     status: 'pending',
     due_date: ''
@@ -30,15 +29,8 @@ const TaskForm = ({ onSubmit, loading }) => {
       setFormError('El título es obligatorio.');
       return;
     }
-    if (!formData.user_id) {
-      setFormError('El ID de usuario es obligatorio.');
-      return;
-    }
 
-    const success = await onSubmit({
-      ...formData,
-      user_id: parseInt(formData.user_id)
-    });
+    const success = await onSubmit(formData);
 
     if (success) {
       setFormData(initialState);
@@ -74,16 +66,7 @@ const TaskForm = ({ onSubmit, loading }) => {
         onChange={handleChange}
         placeholder="Detalles adicionales..."
       />
-      <div className="grid grid-cols-2 gap-4">
-        <Input
-          label="ID Usuario"
-          name="user_id"
-          type="number"
-          value={formData.user_id}
-          onChange={handleChange}
-          placeholder="Ej: 1"
-          required
-        />
+      <div className="grid grid-cols-1 gap-4">
         <Input
           label="Vencimiento"
           name="due_date"
@@ -110,7 +93,7 @@ const TaskForm = ({ onSubmit, loading }) => {
       </div>
 
       {formError && (
-        <p className="text-xs text-fuchsia-500 font-bold uppercase">{formError}</p>
+        <p className="text-xs text-[var(--accent-secondary)] font-bold uppercase">{formError}</p>
       )}
 
       <Button 

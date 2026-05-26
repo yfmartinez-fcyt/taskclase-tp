@@ -1,7 +1,6 @@
-import React from 'react';
 
 /**
- * Selector desplegable reutilizable con estilos ciberpunk.
+ * Selector desplegable reutilizable que se adapta al tema.
  */
 const Select = ({ label, name, value, onChange, options = [], className = '' }) => {
   return (
@@ -11,19 +10,25 @@ const Select = ({ label, name, value, onChange, options = [], className = '' }) 
           {label}
         </label>
       )}
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="cyber-input appearance-none cursor-pointer"
-        style={{ backgroundImage: 'linear-gradient(45deg, transparent 50%, #00f2ff 50%), linear-gradient(135deg, #00f2ff 50%, transparent 50%)', backgroundPosition: 'calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px)', backgroundSize: '5px 5px, 5px 5px', backgroundRepeat: 'no-repeat' }}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-100">
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="cyber-input appearance-none cursor-pointer pr-10"
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value} className="bg-[var(--bg-secondary)] text-[var(--text-primary)]">
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg className="w-4 h-4 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+      </div>
     </div>
   );
 };

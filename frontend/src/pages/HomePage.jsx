@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import Header from '../components/layout/Header';
+import { useState } from 'react';
 import SectionCard from '../components/layout/SectionCard';
 import ApiStatus from '../components/status/ApiStatus';
 import TaskStats from '../components/tasks/TaskStats';
@@ -19,7 +18,6 @@ const HomePage = () => {
     loading,
     error,
     filters,
-    fetchTasks,
     findTaskById,
     createTask,
     updateTask,
@@ -66,8 +64,6 @@ const HomePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <Header />
-      
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Panel Lateral Izquierdo: Estado y Creación */}
         <div className="w-full lg:w-1/3 flex flex-col gap-8">
@@ -132,7 +128,7 @@ const HomePage = () => {
         loading={loading}
       />
 
-      <footer className="mt-16 text-center text-slate-700 text-[10px] font-mono uppercase tracking-[0.3em]">
+      <footer className="mt-16 text-center text-[var(--text-muted)] text-[10px] font-mono uppercase tracking-[0.3em]">
         © 2026 TaskFlow System // Universidad Tecnológica de Datos
       </footer>
     </div>

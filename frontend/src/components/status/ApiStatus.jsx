@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import taskService from '../../services/taskService';
 
 const ApiStatus = () => {
@@ -9,7 +9,7 @@ const ApiStatus = () => {
       try {
         await taskService.getHealth();
         setStatus('online');
-      } catch (error) {
+      } catch {
         setStatus('offline');
       }
     };
@@ -22,14 +22,14 @@ const ApiStatus = () => {
   return (
     <div className="flex items-center gap-2 mb-6">
       <div className={`w-2 h-2 rounded-full animate-pulse ${
-        status === 'online' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 
+        status === 'online' ? 'bg-[var(--accent-primary)] shadow-[0_0_8px_var(--shadow-accent)]' : 
         status === 'offline' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 
         'bg-yellow-400'
       }`}></div>
-      <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
+      <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--text-muted)]">
         API Status: 
         <span className={`ml-2 ${
-          status === 'online' ? 'text-emerald-400' : 
+          status === 'online' ? 'text-[var(--accent-primary)]' : 
           status === 'offline' ? 'text-red-500' : 
           'text-yellow-400'
         }`}>

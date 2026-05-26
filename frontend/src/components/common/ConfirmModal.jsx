@@ -1,4 +1,3 @@
-import React from 'react';
 import Button from '../ui/Button';
 
 /**
@@ -9,19 +8,19 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, loading }) 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+    <div className="fixed inset-0 bg-[var(--bg-primary)]/90 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
       {/* Contenedor del Modal con borde neón fuchsia para advertencia */}
-      <div className="cyber-card w-full max-w-md border-fuchsia-500 shadow-cyber-fuchsia animate-in fade-in zoom-in duration-200">
+      <div className="cyber-card w-full max-w-md border-[var(--accent-secondary)] shadow-cyber-fuchsia animate-in fade-in zoom-in duration-200">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-2 h-8 bg-fuchsia-600 shadow-glow-fuchsia"></div>
-          <h2 className="text-xl font-black text-fuchsia-500 uppercase tracking-widest italic">
+          <div className="w-2 h-8 bg-[var(--accent-secondary)]"></div>
+          <h2 className="text-xl font-black text-[var(--accent-secondary)] uppercase tracking-widest italic">
             Confirmar Acción
           </h2>
         </div>
         
         <div className="mb-8">
-          <h3 className="text-slate-200 font-bold mb-2">{title}</h3>
-          <p className="text-slate-400 text-sm font-mono">
+          <h3 className="text-[var(--text-primary)] font-bold mb-2">{title}</h3>
+          <p className="text-[var(--text-secondary)] text-sm font-mono">
             {message || '¿Estás seguro de que deseas proceder? Esta acción no se puede deshacer.'}
           </p>
         </div>

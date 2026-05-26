@@ -1,16 +1,48 @@
-import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import PublicRoute from './components/auth/PublicRoute';
+import Header from './components/layout/Header';
 
-/**
- * Componente raíz de la aplicación.
- * En una aplicación más grande, aquí configuraríamos el Router o Context Providers.
- * Para este ejemplo, renderizamos directamente la página principal.
- */
+function AppContent() {
+  return (
+    <div className="min-h-screen">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <Routes>
+          {/* Rutas Públicas */}
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
+
+          {/* Rutas Protegidas */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<HomePage />} />
+            {/* Agrega más rutas protegidas aquí */}
+          </Route>
+
+          {/* Redirección por defecto */}
+          <Route path="*" element={<div className="text-center mt-20">404 - Página no encontrada</div>} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
-    <div className="App">
-      <HomePage />
-    </div>
+    <AuthProvider>
+      <ThemeProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 

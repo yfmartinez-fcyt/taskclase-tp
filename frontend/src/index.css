@@ -1,55 +1,106 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cyber-black: #050505;
-  --color-cyber-dark: #0a0a0c;
-  --color-cyber-cyan: #00f2ff;
-  --color-cyber-fuchsia: #ff00ff;
-  --color-cyber-blue: #0062ff;
+  --color-cyber-black: var(--bg-primary);
+  --color-cyber-dark: var(--bg-secondary);
+  --color-cyber-cyan: var(--accent-primary);
+  --color-cyber-fuchsia: var(--accent-secondary);
+  --color-cyber-blue: var(--accent-tertiary);
   --color-cyber-purple: #bc13fe;
 
-  --shadow-cyber-cyan: 0 0 10px rgba(0, 242, 255, 0.3);
-  --shadow-cyber-fuchsia: 0 0 10px rgba(255, 0, 255, 0.3);
+  --shadow-cyber-cyan: 0 0 10px var(--shadow-accent);
+  --shadow-cyber-fuchsia: 0 0 10px var(--shadow-secondary);
+}
+
+:root {
+  /* Dark Theme (Default) */
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0c;
+  --bg-card: rgba(15, 23, 42, 0.5);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-primary: #00f2ff;
+  --accent-secondary: #ff00ff;
+  --accent-tertiary: #0062ff;
+  --border-color: rgba(30, 41, 59, 1);
+  --input-bg: #050505;
+  --shadow-accent: rgba(0, 242, 255, 0.3);
+  --shadow-secondary: rgba(255, 0, 255, 0.3);
+}
+
+:root.light {
+  /* Light Theme */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.8);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent-primary: #0ea5e9;
+  --accent-secondary: #d946ef;
+  --accent-tertiary: #3b82f6;
+  --border-color: #e2e8f0;
+  --input-bg: #ffffff;
+  --shadow-accent: rgba(14, 165, 233, 0.2);
+  --shadow-secondary: rgba(217, 70, 239, 0.2);
 }
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen font-sans;
+    @apply transition-colors duration-300 min-h-screen font-sans;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 242, 255, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(255, 0, 255, 0.05) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, var(--shadow-accent) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, var(--shadow-secondary) 0px, transparent 50%);
   }
 }
 
 @layer components {
   /* cyber-card: Contenedor con estética ciberpunk, fondo oscuro y borde neón suave */
   .cyber-card {
-    @apply bg-slate-900/50 border border-cyan-400/20 rounded-lg p-6 shadow-cyber-cyan backdrop-blur-sm;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    @apply rounded-lg p-6 shadow-cyber-cyan backdrop-blur-sm transition-all duration-300;
   }
 
   /* cyber-button: Botón con efecto de brillo al pasar el mouse */
   .cyber-button {
-    @apply px-4 py-2 bg-transparent border border-cyan-400 text-cyan-400 rounded-md 
-           hover:bg-cyan-400/10 hover:shadow-cyan-500/50 transition-all duration-300
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    @apply px-4 py-2 bg-transparent rounded-md 
+           hover:bg-cyan-500/10 hover:shadow-cyan-500/50 transition-all duration-300
            disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs font-bold;
   }
 
   .cyber-button-primary {
-    @apply px-4 py-2 bg-cyan-500 text-slate-950 rounded-md 
-           hover:bg-cyan-400 hover:shadow-cyan-500/50 transition-all duration-300
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+    @apply px-4 py-2 rounded-md 
+           hover:opacity-90 hover:shadow-cyan-500/50 transition-all duration-300
            disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs font-bold;
   }
 
   .cyber-button-fuchsia {
-    @apply px-4 py-2 bg-transparent border border-fuchsia-500 text-fuchsia-500 rounded-md 
+    color: var(--accent-secondary);
+    border: 1px solid var(--accent-secondary);
+    @apply px-4 py-2 bg-transparent rounded-md 
            hover:bg-fuchsia-500/10 hover:shadow-fuchsia-500/50 transition-all duration-300
            disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs font-bold;
   }
 
-  /* cyber-input: Input oscuro con foco resaltado en cyan */
+  /* cyber-input: Input con foco resaltado */
   .cyber-input {
-    @apply w-full bg-slate-950 border border-slate-700 text-slate-100 rounded-md px-3 py-2
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    @apply w-full rounded-md px-3 py-2
            focus:outline-none focus:border-cyan-400 focus:shadow-cyan-500/20 transition-all;
+  }
+  
+  .cyber-input::placeholder {
+    color: var(--text-muted);
   }
 
   /* cyber-badge: Etiqueta pequeña para estados o prioridades */
