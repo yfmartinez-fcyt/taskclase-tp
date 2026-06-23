@@ -192,15 +192,3 @@ La documentación completa de la API se encuentra en:
 ```text
 backend/API.md
 ```
-
----
-
-## Capturas
-
-Agregar aquí capturas de pantalla o GIFs del sistema en funcionamiento.
-
----
-
-## Licencia
-
-ISC
