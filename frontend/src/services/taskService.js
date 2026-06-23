@@ -16,7 +16,7 @@ const taskService = {
 
   /**
    * Obtiene la lista de tareas filtrada.
-   * @param {Object} filters Objeto con status, priority o user_id
+   * @param {Object} filters Objeto con status, priority 
    * @returns {Promise} Lista de tareas
    */
   getTasks: async (filters = {}) => {
@@ -48,7 +48,7 @@ const taskService = {
 
   /**
    * Crea una nueva tarea en el sistema.
-   * @param {Object} taskData Datos de la tarea (title, user_id, etc.)
+   * @param {Object} taskData Datos de la tarea (title, etc.)
    * @returns {Promise} Tarea creada
    */
   createTask: async (taskData) => {

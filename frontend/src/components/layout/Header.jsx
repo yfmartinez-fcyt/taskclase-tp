@@ -3,10 +3,13 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import Button from '../ui/Button';
 
+
 const Header = () => {
+  
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
+ 
   return (
     <header className="cyber-card !p-0 !rounded-none border-t-0 border-x-0 mb-8 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -24,6 +27,9 @@ const Header = () => {
             <div className="hidden md:flex items-center gap-4 mr-4 border-r border-[var(--border-color)] pr-6">
               <Link to="/" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)] hover:text-cyber-cyan transition-colors">
                 Tareas
+              </Link>
+              <Link to="/categorias" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)] hover:text-cyber-cyan transition-colors">
+                Categorías
               </Link>
               {user.role === 'admin' && (
                 <Link to="/admin" className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)] hover:text-cyber-cyan transition-colors">

@@ -11,10 +11,10 @@ export const useTasks = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
-    status: '',
-    priority: '',
-    user_id: ''
-  });
+  status: '',
+  priority: '',
+  categoria_id: ''
+});
 
   /**
    * Carga las tareas aplicando los filtros actuales.

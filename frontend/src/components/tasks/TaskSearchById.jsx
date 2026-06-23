@@ -43,15 +43,18 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
    * que requieren refrescar la tarea buscada actualmente.
    */
   useEffect(() => {
-    // Solo disparamos el refresco si el trigger contiene el separador '_'
-    // lo cual indica que es una acción de refresco explícita desde el padre.
-    if (refreshTrigger && refreshTrigger.toString().includes('_') && foundTask) {
-      const idToRefresh = refreshTrigger.toString().split('_')[0];
-      if (idToRefresh === foundTask.id.toString()) {
-        executeSearch(idToRefresh);
-      }
-    }
-  }, [refreshTrigger, foundTask, executeSearch]);
+
+    if (!refreshTrigger) return;
+
+    const trigger = refreshTrigger.toString();
+
+    if (!trigger.includes('_')) return;
+
+    const idToRefresh = trigger.split('_')[0];
+
+    executeSearch(idToRefresh);
+
+  }, [refreshTrigger, executeSearch]);
 
   return (
     <div className="mb-8">
@@ -79,18 +82,17 @@ const TaskSearchById = ({ onSearch, onEdit, onDelete, refreshTrigger, onSearched
           <div className="text-[10px] font-bold text-[var(--accent-secondary)] uppercase px-3 py-1">
             Resultado de búsqueda:
           </div>
-          <TaskCard 
-            task={foundTask} 
-            onEdit={onEdit} 
+          <TaskCard
+            task={foundTask}
+            onEdit={onEdit}
             onDelete={() => {
               onDelete(foundTask.id);
               setFoundTask(null);
-            }} 
+            }}
           />
         </div>
       )}
     </div>
   );
 };
-
 export default TaskSearchById;

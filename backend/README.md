@@ -3,11 +3,21 @@
 Sistema de gestión de tareas (Backend).
 
 ## Documentación de la API
-La documentación detallada de la API, incluyendo todas las rutas, parámetros y ejemplos, se encuentra en el siguiente archivo:
+
+Referencia completa de endpoints (auth, tareas, categorías, usuarios):
 
 👉 **[Documentación de la API (API.md)](API.md)**
 
-## Configuración del Proyecto
+## Base de datos
+
+1. Crear la base de datos: `CREATE DATABASE taskflow;`
+2. Ejecutar el esquema: `psql -U postgres -d taskflow -f database.sql`
+
+El archivo `database.sql` incluye tablas de usuarios, tareas, categorías, refresh tokens e índices.
+
+## Configuración del proyecto
+
 1. Instalar dependencias: `npm install`
-2. Configurar el archivo `.env`
-3. Iniciar el servidor: `npm start`
+2. Copiar y completar `.env` desde `.env.template`
+3. Desarrollo: `npm run dev`
+4. Producción: `npm start`
